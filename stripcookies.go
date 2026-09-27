@@ -11,7 +11,8 @@ import (
 
 // Config the plugin configuration.
 type Config struct {
-	Cookies []string `json:"cookies,omitempty"`
+	Cookies       []string `json:"cookies,omitempty"`
+	CookieRegexes []string `json:"cookieRegexes,omitempty"`
 }
 
 // CreateConfig creates the default plugin configuration.
@@ -21,23 +22,30 @@ func CreateConfig() *Config {
 
 // CookieStrip a CookieStrip plugin.
 type CookieStrip struct {
-	next        http.Handler
-	cookies     []string
-	name        string
-	splitRegexp *regexp.Regexp
+	next          http.Handler
+	cookies       []string
+	cookieRegexes []*regexp.Regexp
+	name          string
+	splitRegexp   *regexp.Regexp
 }
 
 // New created a new CookieStrip plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
-	if config.Cookies == nil || len(config.Cookies) == 0 {
-		return nil, fmt.Errorf("cookies cannot be empty")
+	if len(config.Cookies) == 0 && len(config.CookieRegexes) == 0 {
+		return nil, fmt.Errorf("cookies and cookieRegexes cannot both be empty")
+	}
+
+	regexes, err := compileRegexes(config.CookieRegexes)
+	if err != nil {
+		return nil, err
 	}
 
 	return &CookieStrip{
-		cookies:     config.Cookies,
-		next:        next,
-		name:        name,
-		splitRegexp: regexp.MustCompile(` *([^=;]+?) *=[^;]+`),
+		cookies:       config.Cookies,
+		cookieRegexes: regexes,
+		next:          next,
+		name:          name,
+		splitRegexp:   regexp.MustCompile(` *([^=;]+?) *=[^;]+`),
 	}, nil
 }
 
@@ -48,7 +56,7 @@ func (c *CookieStrip) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		cookies := c.splitRegexp.FindAllStringSubmatch(cookieHeader, -1)
 		var keep []string
 		for _, cookie := range cookies {
-			if !stringInSlice(cookie[1], c.cookies) {
+			if !c.shouldStrip(cookie[1]) {
 				keep = append(keep, cookie[0])
 			}
 		}
@@ -65,5 +73,32 @@ func stringInSlice(a string, list []string) bool {
 			return true
 		}
 	}
+	return false
+}
+
+func compileRegexes(patterns []string) ([]*regexp.Regexp, error) {
+	regexes := make([]*regexp.Regexp, 0, len(patterns))
+	for _, pattern := range patterns {
+		reg, err := regexp.Compile(pattern)
+		if err != nil {
+			return nil, fmt.Errorf("invalid cookieRegexes pattern %q: %w", pattern, err)
+		}
+		regexes = append(regexes, reg)
+	}
+
+	return regexes, nil
+}
+
+func (c *CookieStrip) shouldStrip(cookieName string) bool {
+	if stringInSlice(cookieName, c.cookies) {
+		return true
+	}
+
+	for _, reg := range c.cookieRegexes {
+		if reg.MatchString(cookieName) {
+			return true
+		}
+	}
+
 	return false
 }

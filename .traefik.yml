@@ -8,3 +8,5 @@ summary: 'Stripping request cookies by name'
 testData:
   cookies:
     - cookieName
+  cookieRegexes:
+    - "^session_.*$"
