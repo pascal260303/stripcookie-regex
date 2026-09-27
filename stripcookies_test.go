@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nilskohrs/stripcookie"
+	"github.com/pascal260303/stripcookie-regex"
 )
 
 func TestDemo(t *testing.T) {

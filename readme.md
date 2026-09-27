@@ -12,7 +12,7 @@ pilot:
 experimental:
   plugins:
     stripcookie:
-      moduleName: "github.com/nilskohrs/stripcookie"
+      moduleName: "github.com/pascal260303/stripcookie-regex"
       version: "v0.1.0"
 ```
 
