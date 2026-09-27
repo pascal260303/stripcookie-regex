@@ -1,4 +1,4 @@
-package stripcookie_test
+package stripcookie_regex_test
 
 import (
 	"context"
@@ -11,13 +11,13 @@ import (
 )
 
 func TestDemo(t *testing.T) {
-	cfg := stripcookie.CreateConfig()
+	cfg := stripcookie_regex.CreateConfig()
 	cfg.Cookies = []string{"testCookie", "otherCookie"}
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-	handler, err := stripcookie.New(ctx, next, cfg, "stripcookie-plugin")
+	handler, err := stripcookie_regex.New(ctx, next, cfg, "stripcookie-plugin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,13 +37,13 @@ func TestDemo(t *testing.T) {
 }
 
 func TestRegexMatching(t *testing.T) {
-	cfg := stripcookie.CreateConfig()
+	cfg := stripcookie_regex.CreateConfig()
 	cfg.CookieRegexes = []string{`^session_`}
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-	handler, err := stripcookie.New(ctx, next, cfg, "stripcookie-plugin")
+	handler, err := stripcookie_regex.New(ctx, next, cfg, "stripcookie-plugin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,13 +61,13 @@ func TestRegexMatching(t *testing.T) {
 }
 
 func TestRegexCanMatchMultipleCookieNames(t *testing.T) {
-	cfg := stripcookie.CreateConfig()
+	cfg := stripcookie_regex.CreateConfig()
 	cfg.CookieRegexes = []string{`^session_.*`}
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-	handler, err := stripcookie.New(ctx, next, cfg, "stripcookie-plugin")
+	handler, err := stripcookie_regex.New(ctx, next, cfg, "stripcookie-plugin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,13 +85,13 @@ func TestRegexCanMatchMultipleCookieNames(t *testing.T) {
 }
 
 func TestNonMatchingCookiesArePreserved(t *testing.T) {
-	cfg := stripcookie.CreateConfig()
+	cfg := stripcookie_regex.CreateConfig()
 	cfg.CookieRegexes = []string{`^session_`}
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-	handler, err := stripcookie.New(ctx, next, cfg, "stripcookie-plugin")
+	handler, err := stripcookie_regex.New(ctx, next, cfg, "stripcookie-plugin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,13 +109,13 @@ func TestNonMatchingCookiesArePreserved(t *testing.T) {
 }
 
 func TestRegexMatchesCookieNameOnly(t *testing.T) {
-	cfg := stripcookie.CreateConfig()
+	cfg := stripcookie_regex.CreateConfig()
 	cfg.CookieRegexes = []string{`^session_`}
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-	handler, err := stripcookie.New(ctx, next, cfg, "stripcookie-plugin")
+	handler, err := stripcookie_regex.New(ctx, next, cfg, "stripcookie-plugin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,13 +133,13 @@ func TestRegexMatchesCookieNameOnly(t *testing.T) {
 }
 
 func TestInvalidRegexReturnsError(t *testing.T) {
-	cfg := stripcookie.CreateConfig()
+	cfg := stripcookie_regex.CreateConfig()
 	cfg.CookieRegexes = []string{"("}
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-	_, err := stripcookie.New(ctx, next, cfg, "stripcookie-plugin")
+	_, err := stripcookie_regex.New(ctx, next, cfg, "stripcookie-plugin")
 	if err == nil {
 		t.Fatal("expected error for invalid regex")
 	}
@@ -149,13 +149,13 @@ func TestInvalidRegexReturnsError(t *testing.T) {
 }
 
 func TestBackwardCompatibilityForExistingConfig(t *testing.T) {
-	cfg := stripcookie.CreateConfig()
+	cfg := stripcookie_regex.CreateConfig()
 	cfg.Cookies = []string{"legacyCookie"}
 
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-	handler, err := stripcookie.New(ctx, next, cfg, "stripcookie-plugin")
+	handler, err := stripcookie_regex.New(ctx, next, cfg, "stripcookie-plugin")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,5 +1,5 @@
 // Package stripcookie a plugin to strip cookies.
-package stripcookie
+package stripcookie_regex
 
 import (
 	"context"
